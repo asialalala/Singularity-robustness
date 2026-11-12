@@ -1,0 +1,92 @@
+# Jacobian Path Planning Example
+
+This example provides a small MATLAB/Simulink project for experimenting with a Jacobian-based path-planning controller for a two-link planar robot arm.
+
+## Structure
+
+- `create_path_planning_model.m` - creates or recreates `jacobian_path_planning.slx`.
+- `run_example.m` - runs the simulation and plots the target, end-effector path, and joint angles.
+- `jacobian_path_planning.slx` - Simulink model with two main blocks:
+  - **Jacobian Planner** - a MATLAB Function block that computes joint velocities from the current joint state and target position.
+  - **Robot Model** - a MATLAB Function block that integrates the joint velocities and computes the planar end-effector position.
+- `setup_project.m` - adds the project folder to the MATLAB path and creates the model if needed.
+
+## Requirements
+
+- MATLAB R2024a or newer
+- Simulink
+- MATLAB Function blocks (provided by Simulink)
+
+## Quick start
+
+From this folder, run:
+
+```matlab
+setup_project
+run_example
+```
+
+The simulation uses a two-link planar arm with link lengths `L1 = 1.0 m` and `L2 = 0.8 m`. The target position is `[1.25; 0.65] m`. The planner uses a damped Jacobian-transpose update, velocity saturation, and a proportional Cartesian error term.
+
+## Model interface
+
+The top-level model has these tunable workspace variables:
+
+```matlab
+L1 = 1.0;          % first link length [m]
+L2 = 0.8;          % second link length [m]
+initial_q = [0; 0];
+target = [1.25; 0.65];
+Kp = 2.0;          % Cartesian proportional gain
+max_joint_speed = 1.5; % [rad/s]
+simulation_time = 8.0; % [s]
+```
+
+The **Jacobian Planner** receives `q`, `target`, `L1`, `L2`, `Kp`, and `max_joint_speed`, and outputs `q_dot`. The **Robot Model** receives `q_dot`, the delayed joint state, `L1`, and `L2`, and outputs the current joint state `q` and end-effector position.
+
+## Algorithm
+
+The planner forms the analytic geometric Jacobian `J`, computes the Cartesian error `e = target - position`, and uses
+
+### Algorithm 1
+
+```text
+q_dot = J' * (J*J' + lambda^2*I)^(-1) * Kp*e
+```
+
+### Algorithm 2
+
+```text
+q_dot = J' * (J*J' =I)^(-1) * Kp*e
+```
+
+The damping term improves behavior near singular configurations. The resulting joint velocities are limited component-wise to `max_joint_speed`.
+
+
+### Model 1 - two-link arm
+
+For the planar two-link arm, the end-effector position is
+
+```text
+x = L1*cos(q1) + L2*cos(q1 + q2)
+y = L1*sin(q1) + L2*sin(q1 + q2)
+```
+
+
+### Model 2 - non‐redundant manipulator
+
+For the planar non‐redundant manipulator equipped with three rotational joints, the end-effector position is
+
+```text
+x = cos(q1)*A
+y = sin(q1)*A
+z = a0 + a2*sin(q2) + a3*sin(q2+q3)
+```
+where 
+```text
+A = a1 + a2*cos(q2) + a3*cos(q2+q3)
+```
+
+## Customization
+
+Open `jacobian_path_planning.slx` and edit the constants or MATLAB Function blocks. For a different robot model, replace the kinematics and Jacobian in `Jacobian Planner`, then update `Robot Model` consistently. The model is intentionally compact so the controller can be replaced with a pseudoinverse, null-space, obstacle-avoidance, or optimization-based planner later.
