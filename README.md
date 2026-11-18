@@ -48,6 +48,9 @@ The corresponding `Multiport Switch` blocks select the active implementation:
 
 ### Model 1 - two-link planar arm
 
+![two-link planar arm](img/IMG_1144.PNG "two-link planar arm")
+
+
 The arm uses link lengths `L1` and `L2`:
 
 ```text
@@ -59,6 +62,8 @@ z = 0
 The fixed three-element state is `[q1; q2; 0]`. Only the first two target coordinates are used.
 
 ### Model 2 - three-joint manipulator
+
+![three-joint manipulator](img/IMG_1143.PNG "three-joint manipulator")
 
 The model uses parameters `a0`, `a1`, `a2`, and `a3`:
 
