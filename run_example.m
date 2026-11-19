@@ -23,6 +23,7 @@ if size(positionValues, 2) == numel(position.time)
     positionValues = positionValues.';
 end
 
+%  TODO wykresy dla 2 modelu cos nie dzialaja
 if makePlot
     figure('Name', 'Jacobian Path Planning Example', 'Color', 'w');
     tiledlayout(1, 2);

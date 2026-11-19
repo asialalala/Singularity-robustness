@@ -67,7 +67,7 @@ The fixed three-element state is `[q1; q2; 0]`. Only the first two target coordi
 
 The model uses parameters `a0`, `a1`, `a2`, and `a3`:
 
-```text
+```textx
 A = a1 + a2*cos(q2) + a3*cos(q2 + q3)
 x = cos(q1)*A
 y = sin(q1)*A
@@ -88,12 +88,12 @@ q_dot = J' * (J*J' + lambda^2*I)^(-1) * Kp*e
 
 with `lambda = 0.05`. Damping improves behavior near singular configurations.
 
-### Algorithm 2 - pseudoinverse Jacobian
+### Algorithm 2 - pseudoinverse transposition tradeof
 
-The planner uses the Moore-Penrose pseudoinverse:
+The planner uses the Moore-Penrose pseudoinverse and transposition tradeof, scaled based on lambda:
 
 ```text
-q_dot = pinv(J) * Kp*e
+q_dot = J' * (J*J'*(lambda) + (1-lambda)*I)^(-1) * Kp*e
 ```
 
 Both algorithms apply component-wise joint-speed saturation using `max_joint_speed`.

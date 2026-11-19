@@ -15,8 +15,8 @@ assignin('base', 'target', [1.25; 0.65; 0.2]);
 assignin('base', 'Kp', 2.0);
 assignin('base', 'max_joint_speed', 1.5);
 assignin('base', 'simulation_time', 8.0);
-assignin('base', 'model_selection', 1);
-assignin('base', 'algorithm_selection', 1);
+assignin('base', 'model_selection', 1);     % Select mdoel here
+assignin('base', 'algorithm_selection', 2); % Select algorithm here
 
 modelFile = fullfile(projectFolder, 'jacobian_path_planning.slx');
 if ~isfile(modelFile)
