@@ -27,13 +27,11 @@ The default configuration is:
 
 | Selection | Value | Meaning |
 |---|---:|---|
-| `model_selection` | `1` | Two-link planar arm |
 | `algorithm_selection` | `1` | Damped Jacobian |
 
 Both selectors are visible in `jacobian_path_planning.slx` as the **Model Selection** and **Algorithm Selection** Constant blocks. Change their values to `1` or `2`, update the diagram, and run the simulation:
 
 ```matlab
-model_selection = 2;
 algorithm_selection = 2;
 target = [0.9; 0.4; 0.8];
 sim('jacobian_path_planning')
@@ -41,7 +39,6 @@ sim('jacobian_path_planning')
 
 The corresponding `Multiport Switch` blocks select the active implementation:
 
-- **Model Selector q** and **Model Selector position** select the robot model.
 - **Algorithm Selector** selects the planner.
 
 ## Model choices
@@ -61,28 +58,12 @@ z = 0
 
 The fixed three-element state is `[q1; q2; 0]`. Only the first two target coordinates are used.
 
-### Model 2 - three-joint manipulator
-
-![three-joint manipulator](img/IMG_1143.PNG "three-joint manipulator")
-
-The model uses parameters `a0`, `a1`, `a2`, and `a3`:
-
-```textx
-A = a1 + a2*cos(q2) + a3*cos(q2 + q3)
-x = cos(q1)*A
-y = sin(q1)*A
-z = a0 + a2*sin(q2) + a3*sin(q2 + q3)
-```
-
-The target is the full three-element vector `[x; y; z]`. Its Jacobian is evaluated numerically with central differences.
-
 ## Proposed reachable targets
 
 Use `workspace_targets(model_selection)` to return a list of targets. The
 rows are `[x, y, z]`; the z-coordinate is zero for the planar arm.
 
-- Two-link arm: `[1.25; 0.65; 0]`, `[0.95; -0.75; 0]`, `[0.25; 1.20; 0]`
-- Three-joint arm: `[0.95; 0.45; 0.55]`, `[-0.70; 0.80; 0.85]`, `[0.30; -0.90; 0.30]`
+- Two-link arm: `[1.25; 0.65]`, `[0.95; -0.75]`, `[0.25; 1.20]`
 
 ## Algorithm choices
 
@@ -115,16 +96,10 @@ Both algorithms apply component-wise joint-speed saturation using `max_joint_spe
 ```matlab
 L1 = 1.0;
 L2 = 0.8;
-a0 = 0.2;
-a1 = 0.6;
-a2 = 0.5;
-a3 = 0.35;
 initial_q = [0; 0; 0];
 target = [1.25; 0.65; 0.2];
 Kp = 2.0;
-max_joint_speed = 1.5;
 simulation_time = 8.0;
-model_selection = 1;
 algorithm_selection = 1;
 ```
 
