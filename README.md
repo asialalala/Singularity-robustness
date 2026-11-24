@@ -76,6 +76,14 @@ z = a0 + a2*sin(q2) + a3*sin(q2 + q3)
 
 The target is the full three-element vector `[x; y; z]`. Its Jacobian is evaluated numerically with central differences.
 
+## Proposed reachable targets
+
+Use `workspace_targets(model_selection)` to return a list of targets. The
+rows are `[x, y, z]`; the z-coordinate is zero for the planar arm.
+
+- Two-link arm: `[1.25; 0.65; 0]`, `[0.95; -0.75; 0]`, `[0.25; 1.20; 0]`
+- Three-joint arm: `[0.95; 0.45; 0.55]`, `[-0.70; 0.80; 0.85]`, `[0.30; -0.90; 0.30]`
+
 ## Algorithm choices
 
 ### Algorithm 1 - damped Jacobian
@@ -88,13 +96,17 @@ q_dot = J' * (J*J' + lambda^2*I)^(-1) * Kp*e
 
 with `lambda = 0.05`. Damping improves behavior near singular configurations.
 
-### Algorithm 2 - pseudoinverse transposition tradeof
+### Algorithm 2 - pseudoinverse transposition tradeoff
 
-The planner uses the Moore-Penrose pseudoinverse and transposition tradeof, scaled based on lambda:
+The planner uses a λ-scaled Jacobian-transpose/pseudoinverse tradeoff:
 
 ```text
-q_dot = J' * (J*J'*(lambda) + (1-lambda)*I)^(-1) * Kp*e
+q_dot = J' * (lambda*(J*J') + (1-lambda)*I)^(-1) * Kp*e
 ```
+
+The implementation uses `lambda = 0.05`. At `lambda = 1` this approaches the
+Moore-Penrose solution of `J q_dot = Kp*e`; at `lambda = 0` it becomes the
+Jacobian-transpose update.
 
 Both algorithms apply component-wise joint-speed saturation using `max_joint_speed`.
 

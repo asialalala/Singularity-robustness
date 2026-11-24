@@ -15,8 +15,37 @@ assignin('base', 'target', [1.25; 0.65; 0.2]);
 assignin('base', 'Kp', 2.0);
 assignin('base', 'max_joint_speed', 1.5);
 assignin('base', 'simulation_time', 8.0);
-assignin('base', 'model_selection', 1);     % Select mdoel here
+assignin('base', 'model_selection', 1);     % Select model here
 assignin('base', 'algorithm_selection', 2); % Select algorithm here
+
+% Validate targets against the exact workspace limits used by this example.
+modelSelection = evalin('base', 'model_selection');
+configuredTarget = evalin('base', 'target');
+if modelSelection == 1
+    L1 = evalin('base', 'L1');
+    L2 = evalin('base', 'L2');
+    innerRadius = abs(L1-L2);
+    outerRadius = L1+L2;
+    targetRadius = norm(configuredTarget(1:2));
+    reachable = targetRadius >= innerRadius && targetRadius <= outerRadius;
+    if ~reachable
+        warning('Configured target is outside the two-link workspace annulus [%.3g, %.3g] m.', ...
+            innerRadius, outerRadius);
+    end
+else
+    a0 = evalin('base', 'a0');
+    a1 = evalin('base', 'a1');
+    a2 = evalin('base', 'a2');
+    a3 = evalin('base', 'a3');
+    radialLimit = a1+a2+a3;
+    targetRadial = norm(configuredTarget(1:2));
+    targetZ = configuredTarget(3)-a0;
+    reachable = targetRadial <= radialLimit + eps && ...
+        abs(targetZ) <= abs(a2+a3)+eps;
+    if ~reachable
+        warning('Configured target appears outside the three-joint workspace.');
+    end
+end
 
 modelFile = fullfile(projectFolder, 'jacobian_path_planning.slx');
 if ~isfile(modelFile)
